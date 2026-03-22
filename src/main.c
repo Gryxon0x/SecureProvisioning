@@ -14,13 +14,13 @@
 #include <zephyr/drivers/gpio.h>
 #include <soc.h>
 
-#include <zephyr/bluetooth/bluetooth.h>
+#include <zephyr/bluetooth/bluetooth.h> // Core Bluetooth stack init/control
 #include <zephyr/bluetooth/hci.h>
 #include <zephyr/bluetooth/conn.h>
 #include <zephyr/bluetooth/uuid.h>
-#include <zephyr/bluetooth/gatt.h>
+#include <zephyr/bluetooth/gatt.h> // GATT 
 
-#include <bluetooth/services/lbs.h>
+#include <bluetooth/services/lbs.h> // Nordic's example service (to replace)
 
 #include <zephyr/settings/settings.h>
 
@@ -88,7 +88,7 @@ static void disconnected(struct bt_conn *conn, uint8_t reason)
 
 static void recycled_cb(void)
 {
-	printk("Connection object available from previous conn. Disconnect is complete!\n");
+	printk("Connection object available from previous conn. Disconnect is complete\n");
 	advertising_start();
 }
 
@@ -229,13 +229,13 @@ int main(void)
 	if (IS_ENABLED(CONFIG_BT_LBS_SECURITY_ENABLED)) {
 		err = bt_conn_auth_cb_register(&conn_auth_callbacks);
 		if (err) {
-			printk("Failed to register authorization callbacks.\n");
+			printk("Failed to register authorization CBs.\n");
 			return 0;
 		}
 
 		err = bt_conn_auth_info_cb_register(&conn_auth_info_callbacks);
 		if (err) {
-			printk("Failed to register authorization info callbacks.\n");
+			printk("Failed to register authorization info CBs.\n");
 			return 0;
 		}
 	}
