@@ -52,6 +52,7 @@ static const struct bt_data sd[] = {
 
 static void adv_work_handler(struct k_work *work)
 {
+	bt_le_adv_stop();
 	int err = bt_le_adv_start(BT_LE_ADV_CONN_FAST_2, ad, ARRAY_SIZE(ad), sd, ARRAY_SIZE(sd));
 
 	if (err) {
