@@ -75,7 +75,7 @@ static void connected(struct bt_conn *conn, uint8_t err)
 	}
 
 	printk("Connected\n");
-
+	current_conn = bt_conn_ref(conn);   // take reference
 	dk_set_led_on(CON_STATUS_LED);
 }
 
@@ -83,6 +83,10 @@ static void disconnected(struct bt_conn *conn, uint8_t reason)
 {
 	printk("Disconnected, reason 0x%02x %s\n", reason, bt_hci_err_to_str(reason));
 
+	if (current_conn) {
+        bt_conn_unref(current_conn);    // release
+        current_conn = NULL;
+    }
 	dk_set_led_off(CON_STATUS_LED);
 }
 
@@ -169,6 +173,9 @@ static struct bt_conn_auth_info_cb conn_auth_info_callbacks = {
 static struct bt_conn_auth_cb conn_auth_callbacks;
 static struct bt_conn_auth_info_cb conn_auth_info_callbacks;
 #endif
+
+/* SELF ADDED */
+static struct bt_conn *current_conn; // connection handle for better control
 
 static void app_led_cb(bool led_state)
 {
