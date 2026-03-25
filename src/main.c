@@ -41,6 +41,9 @@
 static bool app_button_state;
 static struct k_work adv_work;
 
+/* SELF ADDED */
+static struct bt_conn *current_conn; // connection handle for better control
+
 static const struct bt_data ad[] = {
 	BT_DATA_BYTES(BT_DATA_FLAGS, (BT_LE_AD_GENERAL | BT_LE_AD_NO_BREDR)),
 	BT_DATA(BT_DATA_NAME_COMPLETE, DEVICE_NAME, DEVICE_NAME_LEN),
@@ -174,9 +177,6 @@ static struct bt_conn_auth_info_cb conn_auth_info_callbacks = {
 static struct bt_conn_auth_cb conn_auth_callbacks;
 static struct bt_conn_auth_info_cb conn_auth_info_callbacks;
 #endif
-
-/* SELF ADDED */
-static struct bt_conn *current_conn; // connection handle for better control
 
 static void app_led_cb(bool led_state)
 {
