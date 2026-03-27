@@ -20,7 +20,7 @@
 #include <zephyr/bluetooth/uuid.h>
 #include <zephyr/bluetooth/gatt.h> // GATT 
 
-#include <bluetooth/services/lbs.h> // Nordic's example service (to replace)
+//#include <bluetooth/services/lbs.h> // Nordic's example service (to replace)
 
 #include <zephyr/settings/settings.h>
 
@@ -28,6 +28,7 @@
 
 /* SELF ADDED INCLUDES*/
 #include <zephyr/logging/log.h>
+#include "BLE_GATT/sp_ble.h"
 
 /* SELF ADDED FUNCS*/
 LOG_MODULE_REGISTER(app, LOG_LEVEL_INF);
@@ -44,11 +45,16 @@ LOG_MODULE_REGISTER(app, LOG_LEVEL_INF);
 
 #define USER_BUTTON             DK_BTN1_MSK
 
-static bool app_button_state;
+/* SELF ADDED DEFINES */
+/* Must match service UUID in sp_ble.c */
+#define BT_UUID_SP_SERVICE_VAL \
+	BT_UUID_128_ENCODE(0x12345678, 0x1234, 0x5678, 0x1234, 0x56789abcdef0)
+
+// static bool app_button_state;
 static struct k_work adv_work;
 
 /* SELF ADDED */
-static struct bt_conn *current_conn; // connection handle for better control
+// static struct bt_conn *current_conn; // connection handle for better control
 
 static const struct bt_data ad[] = {
 	BT_DATA_BYTES(BT_DATA_FLAGS, (BT_LE_AD_GENERAL | BT_LE_AD_NO_BREDR)),
@@ -56,7 +62,7 @@ static const struct bt_data ad[] = {
 };
 
 static const struct bt_data sd[] = {
-	BT_DATA_BYTES(BT_DATA_UUID128_ALL, BT_UUID_LBS_VAL),
+	BT_DATA_BYTES(BT_DATA_UUID128_ALL, BT_UUID_SP_SERVICE_VAL),
 };
 
 static void adv_work_handler(struct k_work *work)
@@ -91,7 +97,8 @@ static void connected(struct bt_conn *conn, uint8_t err)
 	}
 
 	LOG_INF("Connected");
-	current_conn = bt_conn_ref(conn);   // take reference
+	sp_ble_connected(conn);
+	//current_conn = bt_conn_ref(conn);   // take reference
 	dk_set_led_on(CON_STATUS_LED);
 }
 
@@ -99,10 +106,11 @@ static void disconnected(struct bt_conn *conn, uint8_t reason)
 {
 	LOG_INF("Disconnected, reason 0x%02x %s", reason, bt_hci_err_to_str(reason));
 
-	if (current_conn) {
-        bt_conn_unref(current_conn);    // release
-        current_conn = NULL;
-    }
+	// if (current_conn) {
+    //     bt_conn_unref(current_conn);    // release
+    //     current_conn = NULL;
+    // }
+	sp_ble_disconnected(conn);
 	dk_set_led_off(CON_STATUS_LED);
 }
 
@@ -190,28 +198,18 @@ static struct bt_conn_auth_cb conn_auth_callbacks;
 static struct bt_conn_auth_info_cb conn_auth_info_callbacks;
 #endif
 
-static void app_led_cb(bool led_state)
-{
-	dk_set_led(USER_LED, led_state);
-}
-
-static bool app_button_cb(void)
-{
-	return app_button_state;
-}
-
-static struct bt_lbs_cb lbs_callbacs = {
-	.led_cb    = app_led_cb,
-	.button_cb = app_button_cb,
-};
-
 static void button_changed(uint32_t button_state, uint32_t has_changed)
 {
 	if (has_changed & USER_BUTTON) {
-		uint32_t user_button_state = button_state & USER_BUTTON;
+		uint8_t payload[1];
+		int err;
 
-		bt_lbs_send_button_state(user_button_state);
-		app_button_state = user_button_state ? true : false;
+		payload[0] = (button_state & USER_BUTTON) ? 1U : 0U;
+
+		err = sp_ble_send(payload, sizeof(payload));
+		if (err) {
+			LOG_WRN("sp_ble_send failed: %d", err);
+		}
 	}
 }
 
@@ -227,12 +225,21 @@ static int init_button(void)
 	return err;
 }
 
+static void app_rx_handler(const uint8_t *data, uint16_t len)
+{
+	LOG_INF("Received %u bytes over RX characteristic", len);
+
+	if (len > 0U) {
+		dk_set_led(USER_LED, data[0] ? 1 : 0);
+	}
+}
+
 int main(void)
 {
 	int blink_status = 0;
 	int err;
 
-	LOG_INF("Starting Bluetooth Peripheral LBS sample");
+	LOG_INF("Starting Secure Provisioning custom BLE sample");
 
 	err = dk_leds_init();
 	if (err) {
@@ -272,11 +279,11 @@ int main(void)
 		settings_load();
 	}
 
-	err = bt_lbs_init(&lbs_callbacs);
+	err = sp_ble_init(app_rx_handler);
 	if (err) {
-		LOG_ERR("Failed to init LBS (err:%d)", err);
-		return 0;
-	}
+	LOG_ERR("Failed to init custom BLE service (err:%d)", err);
+	return 0;
+}
 
 	k_work_init(&adv_work, adv_work_handler);
 	advertising_start();

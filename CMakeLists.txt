@@ -11,6 +11,7 @@ project(SecureProvisioning)
 # NORDIC SDK APP START
 target_sources(app PRIVATE
   src/main.c
+  src/BLE_GATT/sp_ble.c
 )
 
 # NORDIC SDK APP END
