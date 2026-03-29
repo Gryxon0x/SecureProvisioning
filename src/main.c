@@ -37,13 +37,13 @@ LOG_MODULE_REGISTER(app, LOG_LEVEL_INF);
 #define DEVICE_NAME_LEN         (sizeof(DEVICE_NAME) - 1)
 
 
-#define RUN_STATUS_LED          DK_LED1
-#define CON_STATUS_LED          DK_LED2
-#define RUN_LED_BLINK_INTERVAL  1000
+//#define RUN_STATUS_LED          DK_LED1
+//#define CON_STATUS_LED          DK_LED2
+//#define RUN_LED_BLINK_INTERVAL  1000
 
-#define USER_LED                DK_LED3
+//#define USER_LED                DK_LED3
 
-#define USER_BUTTON             DK_BTN1_MSK
+//#define USER_BUTTON             DK_BTN1_MSK
 
 /* SELF ADDED DEFINES */
 /* Must match service UUID in sp_ble.c */
@@ -198,32 +198,32 @@ static struct bt_conn_auth_cb conn_auth_callbacks;
 static struct bt_conn_auth_info_cb conn_auth_info_callbacks;
 #endif
 
-static void button_changed(uint32_t button_state, uint32_t has_changed)
-{
-	// if (has_changed & USER_BUTTON) {
-	// 	uint8_t payload[1];
-	// 	int err;
+// static void button_changed(uint32_t button_state, uint32_t has_changed)
+// {
+// 	// if (has_changed & USER_BUTTON) {
+// 	// 	uint8_t payload[1];
+// 	// 	int err;
 
-	// 	payload[0] = (button_state & USER_BUTTON) ? 1U : 0U;
+// 	// 	payload[0] = (button_state & USER_BUTTON) ? 1U : 0U;
 
-	// 	err = sp_ble_send(payload, sizeof(payload));
-	// 	if (err) {
-	// 		LOG_WRN("sp_ble_send failed: %d", err);
-	// 	}
-	// }
-}
+// 	// 	err = sp_ble_send(payload, sizeof(payload));
+// 	// 	if (err) {
+// 	// 		LOG_WRN("sp_ble_send failed: %d", err);
+// 	// 	}
+// 	// }
+// }
 
-static int init_button(void)
-{
-	int err;
+// static int init_button(void)
+// {
+// 	int err;
 
-	err = dk_buttons_init(button_changed);
-	if (err) {
-		LOG_ERR("Cannot init buttons (err: %d)", err);
-	}
+// 	err = dk_buttons_init(button_changed);
+// 	if (err) {
+// 		LOG_ERR("Cannot init buttons (err: %d)", err);
+// 	}
 
-	return err;
-}
+// 	return err;
+// }
 
 static void app_rx_handler(const uint8_t *data, uint16_t len)
 {
@@ -236,22 +236,22 @@ static void app_rx_handler(const uint8_t *data, uint16_t len)
 
 int main(void)
 {
-	int blink_status = 0;
+	//int blink_status = 0;
 	int err;
 
 	LOG_INF("Starting Secure Provisioning custom BLE sample");
 
-	err = dk_leds_init();
-	if (err) {
-		LOG_ERR("LEDs init failed (err %d)", err);
-		return 0;
-	}
+	// err = dk_leds_init();
+	// if (err) {
+	// 	LOG_ERR("LEDs init failed (err %d)", err);
+	// 	return 0;
+	// }
 
-	err = init_button();
-	if (err) {
-		LOG_ERR("Button init failed (err %d)", err);
-		return 0;
-	}
+	// err = init_button();
+	// if (err) {
+	// 	LOG_ERR("Button init failed (err %d)", err);
+	// 	return 0;
+	// }
 
 	if (IS_ENABLED(CONFIG_BT_LBS_SECURITY_ENABLED)) {
 		err = bt_conn_auth_cb_register(&conn_auth_callbacks);
@@ -290,6 +290,6 @@ int main(void)
 
 	for (;;) {
 		//dk_set_led(RUN_STATUS_LED, (++blink_status) % 2);
-		k_sleep(K_MSEC(RUN_LED_BLINK_INTERVAL));
+		//k_sleep(K_MSEC(RUN_LED_BLINK_INTERVAL));
 	}
 }
