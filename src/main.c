@@ -24,7 +24,7 @@
 
 #include <zephyr/settings/settings.h>
 
-#include <dk_buttons_and_leds.h>
+//#include <dk_buttons_and_leds.h>
 
 /* SELF ADDED INCLUDES*/
 #include <zephyr/logging/log.h>
@@ -99,7 +99,7 @@ static void connected(struct bt_conn *conn, uint8_t err)
 	LOG_INF("Connected");
 	sp_ble_connected(conn);
 	//current_conn = bt_conn_ref(conn);   // take reference
-	dk_set_led_on(CON_STATUS_LED);
+	//dk_set_led_on(CON_STATUS_LED);
 }
 
 static void disconnected(struct bt_conn *conn, uint8_t reason)
@@ -111,7 +111,7 @@ static void disconnected(struct bt_conn *conn, uint8_t reason)
     //     current_conn = NULL;
     // }
 	sp_ble_disconnected(conn);
-	dk_set_led_off(CON_STATUS_LED);
+	//dk_set_led_off(CON_STATUS_LED);
 }
 
 static void recycled_cb(void)
@@ -200,17 +200,17 @@ static struct bt_conn_auth_info_cb conn_auth_info_callbacks;
 
 static void button_changed(uint32_t button_state, uint32_t has_changed)
 {
-	if (has_changed & USER_BUTTON) {
-		uint8_t payload[1];
-		int err;
+	// if (has_changed & USER_BUTTON) {
+	// 	uint8_t payload[1];
+	// 	int err;
 
-		payload[0] = (button_state & USER_BUTTON) ? 1U : 0U;
+	// 	payload[0] = (button_state & USER_BUTTON) ? 1U : 0U;
 
-		err = sp_ble_send(payload, sizeof(payload));
-		if (err) {
-			LOG_WRN("sp_ble_send failed: %d", err);
-		}
-	}
+	// 	err = sp_ble_send(payload, sizeof(payload));
+	// 	if (err) {
+	// 		LOG_WRN("sp_ble_send failed: %d", err);
+	// 	}
+	// }
 }
 
 static int init_button(void)
@@ -230,7 +230,7 @@ static void app_rx_handler(const uint8_t *data, uint16_t len)
 	LOG_INF("Received %u bytes over RX characteristic", len);
 
 	if (len > 0U) {
-		dk_set_led(USER_LED, data[0] ? 1 : 0);
+		//dk_set_led(USER_LED, data[0] ? 1 : 0);
 	}
 }
 
@@ -289,7 +289,7 @@ int main(void)
 	advertising_start();
 
 	for (;;) {
-		dk_set_led(RUN_STATUS_LED, (++blink_status) % 2);
+		//dk_set_led(RUN_STATUS_LED, (++blink_status) % 2);
 		k_sleep(K_MSEC(RUN_LED_BLINK_INTERVAL));
 	}
 }
