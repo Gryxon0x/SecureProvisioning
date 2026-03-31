@@ -34,15 +34,6 @@ LOG_MODULE_REGISTER(app, LOG_LEVEL_INF);
 #define DEVICE_NAME             CONFIG_BT_DEVICE_NAME
 #define DEVICE_NAME_LEN         (sizeof(DEVICE_NAME) - 1)
 
-
-//#define RUN_STATUS_LED          DK_LED1
-//#define CON_STATUS_LED          DK_LED2
-//#define RUN_LED_BLINK_INTERVAL  1000
-
-//#define USER_LED                DK_LED3
-
-//#define USER_BUTTON             DK_BTN1_MSK
-
 /* SELF ADDED DEFINES */
 /* Must match service UUID in sp_ble.c */
 #define BT_UUID_SP_SERVICE_VAL \
