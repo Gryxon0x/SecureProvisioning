@@ -191,22 +191,9 @@ static void app_rx_handler(const uint8_t *data, uint16_t len)
 
 int main(void)
 {
-	//int blink_status = 0;
 	int err;
 
 	LOG_INF("Starting Secure Provisioning custom BLE sample");
-
-	// err = dk_leds_init();
-	// if (err) {
-	// 	LOG_ERR("LEDs init failed (err %d)", err);
-	// 	return 0;
-	// }
-
-	// err = init_button();
-	// if (err) {
-	// 	LOG_ERR("Button init failed (err %d)", err);
-	// 	return 0;
-	// }
 
 	if (IS_ENABLED(CONFIG_BT_LBS_SECURITY_ENABLED)) {
 		err = bt_conn_auth_cb_register(&conn_auth_callbacks);
@@ -244,7 +231,6 @@ int main(void)
 	advertising_start();
 
 	for (;;) {
-		//dk_set_led(RUN_STATUS_LED, (++blink_status) % 2);
-		//k_sleep(K_MSEC(RUN_LED_BLINK_INTERVAL));
+
 	}
 }
