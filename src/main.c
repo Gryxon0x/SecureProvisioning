@@ -20,11 +20,9 @@
 #include <zephyr/bluetooth/uuid.h>
 #include <zephyr/bluetooth/gatt.h> // GATT 
 
-//#include <bluetooth/services/lbs.h> // Nordic's example service (to replace)
 
 #include <zephyr/settings/settings.h>
 
-//#include <dk_buttons_and_leds.h>
 
 /* SELF ADDED INCLUDES*/
 #include <zephyr/logging/log.h>
