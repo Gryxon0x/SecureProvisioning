@@ -180,21 +180,6 @@ static struct bt_conn_auth_cb conn_auth_callbacks;
 static struct bt_conn_auth_info_cb conn_auth_info_callbacks;
 #endif
 
-// static void button_changed(uint32_t button_state, uint32_t has_changed)
-// {
-// 	// if (has_changed & USER_BUTTON) {
-// 	// 	uint8_t payload[1];
-// 	// 	int err;
-
-// 	// 	payload[0] = (button_state & USER_BUTTON) ? 1U : 0U;
-
-// 	// 	err = sp_ble_send(payload, sizeof(payload));
-// 	// 	if (err) {
-// 	// 		LOG_WRN("sp_ble_send failed: %d", err);
-// 	// 	}
-// 	// }
-// }
-
 // static int init_button(void)
 // {
 // 	int err;
