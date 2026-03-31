@@ -180,18 +180,6 @@ static struct bt_conn_auth_cb conn_auth_callbacks;
 static struct bt_conn_auth_info_cb conn_auth_info_callbacks;
 #endif
 
-// static int init_button(void)
-// {
-// 	int err;
-
-// 	err = dk_buttons_init(button_changed);
-// 	if (err) {
-// 		LOG_ERR("Cannot init buttons (err: %d)", err);
-// 	}
-
-// 	return err;
-// }
-
 static void app_rx_handler(const uint8_t *data, uint16_t len)
 {
 	LOG_INF("Received %u bytes over RX characteristic", len);
