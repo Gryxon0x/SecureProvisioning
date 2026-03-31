@@ -93,12 +93,7 @@ static void disconnected(struct bt_conn *conn, uint8_t reason)
 {
 	LOG_INF("Disconnected, reason 0x%02x %s", reason, bt_hci_err_to_str(reason));
 
-	// if (current_conn) {
-    //     bt_conn_unref(current_conn);    // release
-    //     current_conn = NULL;
-    // }
 	sp_ble_disconnected(conn);
-	//dk_set_led_off(CON_STATUS_LED);
 }
 
 static void recycled_cb(void)
