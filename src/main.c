@@ -87,8 +87,6 @@ static void connected(struct bt_conn *conn, uint8_t err)
 
 	LOG_INF("Connected");
 	sp_ble_connected(conn);
-	//current_conn = bt_conn_ref(conn);   // take reference
-	//dk_set_led_on(CON_STATUS_LED);
 }
 
 static void disconnected(struct bt_conn *conn, uint8_t reason)
