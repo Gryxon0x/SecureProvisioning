@@ -238,5 +238,19 @@ int main(void)
 		payload[1] = (counter >> 8) & 0xFF;
 		payload[2] = (counter >> 16) & 0xFF;
 		payload[3] = (counter >> 24) & 0xFF;
+
+		err = sp_ble_send(payload, sizeof(payload));
+		if (err == -ENOTCONN) {
+			LOG_INF("No BLE connection");
+		} else if (err == -EACCES) {
+			LOG_INF("Notifications not enabled");
+		} else if (err) {
+			LOG_WRN("sp_ble_send failed: %d", err);
+		} else {
+			LOG_INF("Sent notify: counter=%u", counter);
+			counter++;
+		}
+
+		k_sleep(K_MSEC(1000));
 	}
 }
