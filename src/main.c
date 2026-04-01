@@ -192,6 +192,7 @@ static void app_rx_handler(const uint8_t *data, uint16_t len)
 int main(void)
 {
 	int err;
+	uint32_t counter = 0;
 
 	LOG_INF("Starting Secure Provisioning custom BLE sample");
 
@@ -223,9 +224,9 @@ int main(void)
 
 	err = sp_ble_init(app_rx_handler);
 	if (err) {
-	LOG_ERR("Failed to init custom BLE service (err:%d)", err);
-	return 0;
-}
+		LOG_ERR("Failed to init custom BLE service (err:%d)", err);
+		return 0;
+	}
 
 	k_work_init(&adv_work, adv_work_handler);
 	advertising_start();
