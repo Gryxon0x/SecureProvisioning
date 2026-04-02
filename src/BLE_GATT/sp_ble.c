@@ -121,26 +121,36 @@ int sp_ble_init(sp_ble_rx_cb_t rx_cb)
 
 int sp_ble_send(const uint8_t *data, uint16_t len)
 {
+	int err;
+
 	if (data == NULL || len == 0U) {
+		LOG_ERR("sp_ble_send: invalid args");
 		return -EINVAL;
 	}
 
 	if (current_conn == NULL) {
+		LOG_WRN("sp_ble_send: no connection");
 		return -ENOTCONN;
 	}
 
 	if (!notify_enabled) {
+		LOG_WRN("sp_ble_send: notify not enabled");
 		return -EACCES;
 	}
 
 	if (len > sizeof(tx_value)) {
+		LOG_ERR("sp_ble_send: message too large (%u)", len);
 		return -EMSGSIZE;
 	}
 
 	memcpy(tx_value, data, len);
 
-	/* attrs[2] is TX characteristic value attribute */
-	return bt_gatt_notify(current_conn, &sp_svc.attrs[2], tx_value, len);
+	LOG_INF("sp_ble_send: conn=%p len=%u", current_conn, len);
+
+	err = bt_gatt_notify(current_conn, &sp_svc.attrs[2], tx_value, len);
+	LOG_INF("sp_ble_send: bt_gatt_notify returned %d", err);
+
+	return err;
 }
 
 bool sp_ble_is_notify_enabled(void)
