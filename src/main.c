@@ -44,6 +44,7 @@ static struct k_work adv_work;
 
 /* SELF ADDED */
 // static struct bt_conn *current_conn; // connection handle for better control
+static bool streaming_enabled = false;
 
 static const struct bt_data ad[] = {
 	BT_DATA_BYTES(BT_DATA_FLAGS, (BT_LE_AD_GENERAL | BT_LE_AD_NO_BREDR)),
@@ -182,10 +183,25 @@ static struct bt_conn_auth_info_cb conn_auth_info_callbacks;
 
 static void app_rx_handler(const uint8_t *data, uint16_t len)
 {
-	LOG_INF("Received %u bytes over RX characteristic", len);
+	if (data == NULL || len == 0U) {
+		LOG_WRN("RX: empty payload");
+		return;
+	}
 
-	if (len > 0U) {
-		//dk_set_led(USER_LED, data[0] ? 1 : 0);
+	switch (data[0]) {
+	case 0x01:
+		streaming_enabled = true;
+		LOG_INF("RX command: start streaming");
+		break;
+
+	case 0x00:
+		streaming_enabled = false;
+		LOG_INF("RX command: stop streaming");
+		break;
+
+	default:
+		LOG_WRN("RX command: unknown value 0x%02x", data[0]);
+		break;
 	}
 }
 
