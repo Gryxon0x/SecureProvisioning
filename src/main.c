@@ -192,6 +192,11 @@ static bool is_provisioning_command(uint8_t cmd)
     return (cmd >= 0x10 && cmd <= 0x1F);
 }
 
+static bool is_auth_command(uint8_t cmd)
+{
+    return cmd == 0x20;
+}
+
 static void handle_provisioning_command(uint8_t cmd, const uint8_t *data, uint16_t len)
 {
     ARG_UNUSED(data);
@@ -200,6 +205,7 @@ static void handle_provisioning_command(uint8_t cmd, const uint8_t *data, uint16
     switch (cmd) {
     case 0x10:
         LOG_INF("Provisioning command received: mark provisioned");
+		streaming_enabled = false;
         sp_state_set_provisioned_idle();
         break;
 
@@ -257,7 +263,10 @@ static void app_rx_handler(const uint8_t *data, uint16_t len)
     case SP_STATE_PROVISIONED_IDLE:
         if (is_provisioning_command(cmd)) {
             handle_provisioning_command(cmd, data, len);
-        } else {
+        } else if (is_auth_command(cmd)) {
+        LOG_INF("Auth command received: entering AUTHENTICATED");
+        sp_state_set_authenticated();
+		} else {
             LOG_WRN("Blocked operational command 0x%02x in PROVISIONED_IDLE", cmd);
         }
         break;
