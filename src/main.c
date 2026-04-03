@@ -27,6 +27,7 @@
 /* SELF ADDED INCLUDES*/
 #include <zephyr/logging/log.h>
 #include "BLE_GATT/sp_ble.h"
+#include "sp_state.h"
 
 /* SELF ADDED FUNCS*/
 LOG_MODULE_REGISTER(app, LOG_LEVEL_INF);
@@ -209,6 +210,8 @@ int main(void)
 {
 	int err;
 	uint32_t counter = 0;
+
+	sp_state_init(); // state machine for security
 
 	LOG_INF("Starting Secure Provisioning custom BLE sample");
 
