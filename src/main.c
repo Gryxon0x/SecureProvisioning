@@ -404,19 +404,18 @@ int main(void)
 			payload[2] = (counter >> 16) & 0xFF;
 			payload[3] = (counter >> 24) & 0xFF;
 
-			err = sp_ble_send(payload, sizeof(payload));
+			err = sp_oper_send_telemetry(payload, sizeof(payload));
 			if (err == -ENOTCONN) {
 				LOG_INF("No BLE connection");
 			} else if (err == -EACCES) {
-				LOG_INF("Notifications not enabled");
+				LOG_INF("Telemetry notifications not enabled");
 			} else if (err) {
-				LOG_WRN("sp_ble_send failed: %d", err);
+				LOG_WRN("sp_oper_send_telemetry failed: %d", err);
 			} else {
-				LOG_INF("Sent notify: counter=%u", counter);
+				LOG_INF("Sent telemetry counter=%u", counter);
 				counter++;
 			}
 		}
-
-		k_sleep(K_MSEC(1000));
+	k_sleep(K_MSEC(1000));
 	}
 }
