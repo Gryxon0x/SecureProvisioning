@@ -380,6 +380,18 @@ int main(void)
 		return 0;
 	}
 
+	err = sp_prov_init(app_prov_rx_handler);
+	if (err) {
+		LOG_ERR("Failed to init provisioning service (err:%d)", err);
+		return 0;
+	}
+
+	err = sp_oper_init(app_oper_auth_rx_handler, app_oper_cmd_rx_handler);
+	if (err) {
+		LOG_ERR("Failed to init operational service (err:%d)", err);
+		return 0;
+	}
+
 	k_work_init(&adv_work, adv_work_handler);
 	advertising_start();
 
