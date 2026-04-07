@@ -299,6 +299,26 @@ static void app_rx_handler(const uint8_t *data, uint16_t len)
     }
 }
 
+static void app_prov_rx_handler(const uint8_t *data, uint16_t len)
+{
+	if (data == NULL || len == 0U) {
+		LOG_WRN("Provisioning RX: empty payload");
+		return;
+	}
+
+	LOG_INF("Provisioning RX cmd=0x%02x len=%u", data[0], len);
+}
+
+static void app_oper_auth_rx_handler(const uint8_t *data, uint16_t len)
+{
+	if (data == NULL || len == 0U) {
+		LOG_WRN("Operational auth RX: empty payload");
+		return;
+	}
+
+	LOG_INF("Operational auth RX cmd=0x%02x len=%u", data[0], len);
+}
+
 int main(void)
 {
 	int err;
