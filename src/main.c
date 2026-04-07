@@ -98,14 +98,16 @@ static void connected(struct bt_conn *conn, uint8_t err)
 	}
 
 	LOG_INF("Connected");
-	sp_ble_connected(conn);
+	sp_prov_connected(conn);
+	sp_oper_connected(conn);
 }
 
 static void disconnected(struct bt_conn *conn, uint8_t reason)
 {
 	LOG_INF("Disconnected, reason 0x%02x %s", reason, bt_hci_err_to_str(reason));
 
-	sp_ble_disconnected(conn);
+	sp_prov_connected(conn);
+	sp_oper_connected(conn);
 }
 
 static void recycled_cb(void)
