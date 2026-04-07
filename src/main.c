@@ -28,6 +28,8 @@
 #include <zephyr/logging/log.h>
 #include "BLE_GATT/sp_ble.h"
 #include "sp_state.h"
+#include "BLE_GATT/sp_prov.h"
+#include "BLE_GATT/sp_oper.h"
 
 /* SELF ADDED FUNCS*/
 LOG_MODULE_REGISTER(app, LOG_LEVEL_INF);
