@@ -26,7 +26,6 @@
 
 /* SELF ADDED INCLUDES*/
 #include <zephyr/logging/log.h>
-#include "BLE_GATT/sp_ble.h"
 #include "sp_state.h"
 #include "BLE_GATT/sp_prov.h"
 #include "BLE_GATT/sp_oper.h"
@@ -38,9 +37,6 @@ LOG_MODULE_REGISTER(app, LOG_LEVEL_INF);
 #define DEVICE_NAME_LEN         (sizeof(DEVICE_NAME) - 1)
 
 /* SELF ADDED DEFINES */
-/* Must match service UUID in sp_ble.c */
-#define BT_UUID_SP_SERVICE_VAL \
-	BT_UUID_128_ENCODE(0x12345678, 0x1234, 0x5678, 0x1234, 0x56789abcdef0)
 
 #define BT_UUID_SP_PROV_SERVICE_VAL \
 	BT_UUID_128_ENCODE(0x12345678, 0x1234, 0x5678, 0x1234, 0x56789abcdef0)
@@ -372,12 +368,6 @@ int main(void)
 
 	if (IS_ENABLED(CONFIG_SETTINGS)) {
 		settings_load();
-	}
-
-	err = sp_ble_init(app_rx_handler);
-	if (err) {
-		LOG_ERR("Failed to init custom BLE service (err:%d)", err);
-		return 0;
 	}
 
 	err = sp_prov_init(app_prov_rx_handler);
