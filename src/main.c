@@ -315,6 +315,35 @@ static void app_oper_auth_rx_handler(const uint8_t *data, uint16_t len)
 	LOG_INF("Operational auth RX cmd=0x%02x len=%u", data[0], len);
 }
 
+static void app_oper_cmd_rx_handler(const uint8_t *data, uint16_t len)
+{
+	if (data == NULL || len == 0U) {
+		LOG_WRN("Operational command RX: empty payload");
+		return;
+	}
+
+	if (sp_state_get() != SP_STATE_AUTHENTICATED) {
+		LOG_WRN("Blocked operational command 0x%02x outside AUTHENTICATED", data[0]);
+		return;
+	}
+
+	switch (data[0]) {
+	case 0x01:
+		streaming_enabled = true;
+		LOG_INF("Operational command: start streaming");
+		break;
+
+	case 0x00:
+		streaming_enabled = false;
+		LOG_INF("Operational command: stop streaming");
+		break;
+
+	default:
+		LOG_WRN("Unknown operational command: 0x%02x", data[0]);
+		break;
+	}
+}
+
 int main(void)
 {
 	int err;
