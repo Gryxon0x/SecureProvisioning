@@ -190,61 +190,6 @@ static struct bt_conn_auth_cb conn_auth_callbacks;
 static struct bt_conn_auth_info_cb conn_auth_info_callbacks;
 #endif
 
-static bool is_operational_command(uint8_t cmd)
-{
-    return (cmd == 0x00) || (cmd == 0x01);
-}
-
-static bool is_provisioning_command(uint8_t cmd)
-{
-    return (cmd >= 0x10 && cmd <= 0x1F);
-}
-
-static bool is_auth_command(uint8_t cmd)
-{
-    return cmd == 0x20;
-}
-
-static void handle_provisioning_command(uint8_t cmd, const uint8_t *data, uint16_t len)
-{
-    ARG_UNUSED(data);
-    ARG_UNUSED(len);
-
-    switch (cmd) {
-    case 0x10:
-        LOG_INF("Provisioning command received: mark provisioned");
-		streaming_enabled = false;
-        sp_state_set_provisioned_idle();
-        break;
-
-    default:
-        LOG_WRN("Unknown provisioning command: 0x%02x", cmd);
-        break;
-    }
-}
-
-static void handle_operational_command(uint8_t cmd, const uint8_t *data, uint16_t len)
-{
-    ARG_UNUSED(data);
-    ARG_UNUSED(len);
-
-    switch (cmd) {
-    case 0x01:
-        streaming_enabled = true;
-        LOG_INF("Operational command: start streaming");
-        break;
-
-    case 0x00:
-        streaming_enabled = false;
-        LOG_INF("Operational command: stop streaming");
-        break;
-
-    default:
-        LOG_WRN("Unknown operational command: 0x%02x", cmd);
-        break;
-    }
-}
-
 static void app_prov_rx_handler(const uint8_t *data, uint16_t len)
 {
 	if (data == NULL || len == 0U) {
