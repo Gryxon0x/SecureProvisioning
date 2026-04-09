@@ -63,6 +63,7 @@ static const struct bt_data sd[] = {
 
 static void adv_work_handler(struct k_work *work)
 {
+	ARG_UNUSED(work);
 	int err;
 
 	err = bt_le_adv_stop();
@@ -393,7 +394,7 @@ int main(void)
 				counter++;
 			}
 		}
-	k_sleep(K_MSEC(1000));
+		k_sleep(K_MSEC(1000));
 	}
 }
 
