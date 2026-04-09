@@ -104,6 +104,12 @@ static void disconnected(struct bt_conn *conn, uint8_t reason)
 
 	sp_prov_disconnected(conn);
 	sp_oper_disconnected(conn);
+
+	streaming_enabled = false;
+
+	if (sp_state_get() == SP_STATE_AUTHENTICATED) {
+		sp_state_set_provisioned_idle();
+	}
 }
 
 static void recycled_cb(void)
