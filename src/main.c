@@ -303,6 +303,27 @@ static void app_prov_rx_handler(const uint8_t *data, uint16_t len)
 	}
 
 	LOG_INF("Provisioning RX cmd=0x%02x len=%u", data[0], len);
+
+	switch (sp_state_get()) {
+	case SP_STATE_FACTORY_NEW:
+	case SP_STATE_PROVISIONED_IDLE:
+		if (data[0] == 0x10) {
+			LOG_INF("Provisioning command received: mark provisioned");
+			streaming_enabled = false;
+			sp_state_set_provisioned_idle();
+		} else {
+			LOG_WRN("Unknown provisioning command: 0x%02x", data[0]);
+		}
+		break;
+
+	case SP_STATE_AUTHENTICATED:
+		LOG_WRN("Provisioning RX blocked in AUTHENTICATED");
+		break;
+
+	default:
+		LOG_ERR("Invalid state");
+		break;
+	}
 }
 
 static void app_oper_auth_rx_handler(const uint8_t *data, uint16_t len)
@@ -313,6 +334,14 @@ static void app_oper_auth_rx_handler(const uint8_t *data, uint16_t len)
 	}
 
 	LOG_INF("Operational auth RX cmd=0x%02x len=%u", data[0], len);
+
+	if (sp_state_get() == SP_STATE_PROVISIONED_IDLE && data[0] == 0x20) {
+		LOG_INF("Auth command received: entering AUTHENTICATED");
+		sp_state_set_authenticated();
+		return;
+	}
+
+	LOG_WRN("Auth command blocked in state=%s", sp_state_str(sp_state_get()));
 }
 
 static void app_oper_cmd_rx_handler(const uint8_t *data, uint16_t len)
@@ -418,3 +447,4 @@ int main(void)
 	k_sleep(K_MSEC(1000));
 	}
 }
+
