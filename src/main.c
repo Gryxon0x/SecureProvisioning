@@ -245,56 +245,6 @@ static void handle_operational_command(uint8_t cmd, const uint8_t *data, uint16_
     }
 }
 
-static void app_rx_handler(const uint8_t *data, uint16_t len)
-{
-    uint8_t cmd;
-
-    if (data == NULL || len == 0U) {
-        LOG_WRN("RX: empty payload");
-        return;
-    }
-
-    cmd = data[0];
-
-    LOG_INF("RX: state=%s cmd=0x%02x len=%u",
-            sp_state_str(sp_state_get()), cmd, len);
-
-    switch (sp_state_get()) {
-    case SP_STATE_FACTORY_NEW:
-        if (is_provisioning_command(cmd)) {
-            handle_provisioning_command(cmd, data, len);
-        } else {
-            LOG_WRN("Blocked command 0x%02x in FACTORY_NEW", cmd);
-        }
-        break;
-
-    case SP_STATE_PROVISIONED_IDLE:
-        if (is_provisioning_command(cmd)) {
-            handle_provisioning_command(cmd, data, len);
-        } else if (is_auth_command(cmd)) {
-        LOG_INF("Auth command received: entering AUTHENTICATED");
-        sp_state_set_authenticated();
-		} else {
-            LOG_WRN("Blocked operational command 0x%02x in PROVISIONED_IDLE", cmd);
-        }
-        break;
-
-    case SP_STATE_AUTHENTICATED:
-        if (is_operational_command(cmd)) {
-            handle_operational_command(cmd, data, len);
-        } else if (is_provisioning_command(cmd)) {
-            handle_provisioning_command(cmd, data, len);
-        } else {
-            LOG_WRN("Unknown command 0x%02x in AUTHENTICATED", cmd);
-        }
-        break;
-
-    default:
-        LOG_ERR("Invalid state");
-        break;
-    }
-}
-
 static void app_prov_rx_handler(const uint8_t *data, uint16_t len)
 {
 	if (data == NULL || len == 0U) {
