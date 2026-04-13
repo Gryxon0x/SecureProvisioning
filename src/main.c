@@ -41,11 +41,9 @@ LOG_MODULE_REGISTER(app, LOG_LEVEL_INF);
 #define BT_UUID_SP_PROV_SERVICE_VAL \
 	BT_UUID_128_ENCODE(0x12345678, 0x1234, 0x5678, 0x1234, 0x56789abcdef0)
 
-// static bool app_button_state;
 static struct k_work adv_work;
 
 /* SELF ADDED */
-// static struct bt_conn *current_conn; // connection handle for better control
 static bool streaming_enabled = false;
 
 static const struct bt_data ad[] = {
