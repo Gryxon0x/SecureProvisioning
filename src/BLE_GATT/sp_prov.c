@@ -8,6 +8,7 @@
 #include <zephyr/bluetooth/gatt.h>
 #include <zephyr/bluetooth/uuid.h>
 #include <zephyr/logging/log.h>
+#include <zephyr/random/random.h>
 #include <zephyr/sys/util.h>
 
 LOG_MODULE_REGISTER(sp_prov, LOG_LEVEL_INF);
@@ -45,6 +46,15 @@ static sp_prov_rx_cb_t rx_callback;
 static struct sp_prov_state_msg state_value;
 static uint8_t tx_value[SP_PROV_MAX_DATA_LEN];
 static uint8_t rx_value[SP_PROV_MAX_DATA_LEN];
+
+/* Provisioning session state */
+static uint8_t prov_challenge[SP_PROV_CHALLENGE_LEN];
+static bool prov_challenge_active;
+static bool prov_authenticated;
+
+static uint8_t staged_blob[SP_PROV_BLOB_MAX_LEN];
+static uint16_t staged_blob_len;
+static bool staged_blob_valid;
 
 static ssize_t read_state(struct bt_conn *conn,
 			  const struct bt_gatt_attr *attr,
