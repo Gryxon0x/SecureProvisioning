@@ -338,6 +338,7 @@ void sp_prov_disconnected(struct bt_conn *conn)
 		current_conn = NULL;
 	}
 
+	sp_prov_reset_session();
 	LOG_INF("Provisioning service released connection");
 }
 
