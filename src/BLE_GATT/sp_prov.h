@@ -14,6 +14,13 @@ enum {
 	SP_PROV_CMD_COMMIT        = 0x13,
 };
 
+enum {
+	SP_PROV_EVT_CHALLENGE     = 0x80,
+	SP_PROV_EVT_ACK           = 0x81,
+	SP_PROV_EVT_ERROR         = 0x82,
+	SP_PROV_EVT_COMMIT_RESULT = 0x83,
+};
+
 int sp_prov_init(sp_prov_rx_cb_t rx_cb);
 
 void sp_prov_connected(struct bt_conn *conn);
