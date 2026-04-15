@@ -389,3 +389,49 @@ int sp_prov_send_state(uint8_t state, uint8_t flags, uint16_t last_error)
 	err = bt_gatt_notify(current_conn, &sp_prov_svc.attrs[2], &state_value, sizeof(state_value));
 	return err;
 }
+
+bool sp_prov_is_challenge_active(void)
+{
+	return prov_challenge_active;
+}
+
+bool sp_prov_is_authenticated(void)
+{
+	return prov_authenticated;
+}
+
+bool sp_prov_is_blob_staged(void)
+{
+	return staged_blob_valid;
+}
+
+const uint8_t *sp_prov_get_challenge(void)
+{
+	return prov_challenge;
+}
+
+uint16_t sp_prov_get_challenge_len(void)
+{
+	return sizeof(prov_challenge);
+}
+
+const uint8_t *sp_prov_get_blob(void)
+{
+	return staged_blob;
+}
+
+uint16_t sp_prov_get_blob_len(void)
+{
+	return staged_blob_len;
+}
+
+void sp_prov_reset_session(void)
+{
+	memset(prov_challenge, 0, sizeof(prov_challenge));
+	prov_challenge_active = false;
+	prov_authenticated = false;
+
+	memset(staged_blob, 0, sizeof(staged_blob));
+	staged_blob_len = 0U;
+	staged_blob_valid = false;
+}
