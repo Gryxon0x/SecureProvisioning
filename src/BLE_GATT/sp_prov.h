@@ -7,6 +7,13 @@
 
 typedef void (*sp_prov_rx_cb_t)(const uint8_t *data, uint16_t len);
 
+enum {
+	SP_PROV_CMD_GET_CHALLENGE = 0x10,
+	SP_PROV_CMD_SEND_PROOF    = 0x11,
+	SP_PROV_CMD_SET_BLOB      = 0x12,
+	SP_PROV_CMD_COMMIT        = 0x13,
+};
+
 int sp_prov_init(sp_prov_rx_cb_t rx_cb);
 
 void sp_prov_connected(struct bt_conn *conn);
