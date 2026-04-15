@@ -30,4 +30,17 @@ bool sp_prov_is_tx_enabled(void);
 int sp_prov_send(const uint8_t *data, uint16_t len);
 int sp_prov_send_state(uint8_t state, uint8_t flags, uint16_t last_error);
 
+/* New helpers */
+bool sp_prov_is_challenge_active(void);
+bool sp_prov_is_authenticated(void);
+bool sp_prov_is_blob_staged(void);
+
+const uint8_t *sp_prov_get_challenge(void);
+uint16_t sp_prov_get_challenge_len(void);
+
+const uint8_t *sp_prov_get_blob(void);
+uint16_t sp_prov_get_blob_len(void);
+
+void sp_prov_reset_session(void);
+
 #endif /* SP_PROV_H_ */
