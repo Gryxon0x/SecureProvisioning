@@ -304,6 +304,14 @@ int sp_prov_init(sp_prov_rx_cb_t rx_cb)
 	memset(tx_value, 0, sizeof(tx_value));
 	memset(rx_value, 0, sizeof(rx_value));
 
+	memset(prov_challenge, 0, sizeof(prov_challenge));
+	prov_challenge_active = false;
+	prov_authenticated = false;
+
+	memset(staged_blob, 0, sizeof(staged_blob));
+	staged_blob_len = 0U;
+	staged_blob_valid = false;
+
 	LOG_INF("Provisioning service initialized");
 	return 0;
 }
