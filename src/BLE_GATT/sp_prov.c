@@ -75,6 +75,161 @@ static void tx_ccc_cfg_changed(const struct bt_gatt_attr *attr, uint16_t value)
 	LOG_INF("Provisioning TX notifications %s", tx_enabled ? "enabled" : "disabled");
 }
 
+static int sp_prov_send_error(uint8_t cmd, uint8_t err_code)
+{
+	uint8_t msg[3];
+
+	msg[0] = SP_PROV_EVT_ERROR;
+	msg[1] = cmd;
+	msg[2] = err_code;
+
+	return sp_prov_send(msg, sizeof(msg));
+}
+
+static int sp_prov_send_ack(uint8_t cmd)
+{
+	uint8_t msg[2];
+
+	msg[0] = SP_PROV_EVT_ACK;
+	msg[1] = cmd;
+
+	return sp_prov_send(msg, sizeof(msg));
+}
+
+static int sp_prov_send_commit_result(uint8_t status)
+{
+	uint8_t msg[2];
+
+	msg[0] = SP_PROV_EVT_COMMIT_RESULT;
+	msg[1] = status;
+
+	return sp_prov_send(msg, sizeof(msg));
+}
+
+static int handle_get_challenge(void)
+{
+	uint8_t msg[1 + SP_PROV_CHALLENGE_LEN];
+
+	sys_rand_get(prov_challenge, sizeof(prov_challenge));
+	prov_challenge_active = true;
+	prov_authenticated = false;
+	staged_blob_valid = false;
+	staged_blob_len = 0U;
+
+	msg[0] = SP_PROV_EVT_CHALLENGE;
+	memcpy(&msg[1], prov_challenge, sizeof(prov_challenge));
+
+	LOG_INF("Provisioning challenge generated");
+	return sp_prov_send(msg, sizeof(msg));
+}
+
+/*
+ * Placeholder proof verification for now.
+ * Real implementation should verify HMAC/bootstrap proof.
+ */
+static bool verify_proof_placeholder(const uint8_t *proof, uint16_t len)
+{
+	if (!prov_challenge_active) {
+		return false;
+	}
+
+	/* Temporary rule for plumbing:
+	 * accept proof if first byte is 0xA5 and len >= 1
+	 */
+	if (len >= 1U && proof[0] == 0xA5U) {
+		return true;
+	}
+
+	return false;
+}
+
+static int handle_send_proof(const uint8_t *buf, uint16_t len)
+{
+	bool ok;
+
+	if (len < 2U) {
+		return sp_prov_send_error(SP_PROV_CMD_SEND_PROOF, 0x01);
+	}
+
+	ok = verify_proof_placeholder(&buf[1], len - 1U);
+	if (!ok) {
+		prov_authenticated = false;
+		LOG_WRN("Provisioning proof rejected");
+		return sp_prov_send_error(SP_PROV_CMD_SEND_PROOF, 0x02);
+	}
+
+	prov_authenticated = true;
+	LOG_INF("Provisioning proof accepted");
+	return sp_prov_send_ack(SP_PROV_CMD_SEND_PROOF);
+}
+
+static int handle_set_blob(const uint8_t *buf, uint16_t len)
+{
+	uint16_t blob_len = len - 1U;
+
+	if (!prov_authenticated) {
+		return sp_prov_send_error(SP_PROV_CMD_SET_BLOB, 0x03);
+	}
+
+	if (len < 2U) {
+		return sp_prov_send_error(SP_PROV_CMD_SET_BLOB, 0x01);
+	}
+
+	if (blob_len > sizeof(staged_blob)) {
+		return sp_prov_send_error(SP_PROV_CMD_SET_BLOB, 0x04);
+	}
+
+	memcpy(staged_blob, &buf[1], blob_len);
+	staged_blob_len = blob_len;
+	staged_blob_valid = true;
+
+	LOG_INF("Provisioning blob staged: len=%u", blob_len);
+	return sp_prov_send_ack(SP_PROV_CMD_SET_BLOB);
+}
+
+static int handle_commit(void)
+{
+	if (!prov_authenticated) {
+		return sp_prov_send_error(SP_PROV_CMD_COMMIT, 0x03);
+	}
+
+	if (!staged_blob_valid) {
+		return sp_prov_send_error(SP_PROV_CMD_COMMIT, 0x05);
+	}
+
+	LOG_INF("Provisioning commit accepted");
+	return sp_prov_send_commit_result(0x00);
+}
+
+static int handle_rx_message(const uint8_t *buf, uint16_t len)
+{
+	uint8_t cmd;
+
+	if (buf == NULL || len == 0U) {
+		return -EINVAL;
+	}
+
+	cmd = buf[0];
+
+	switch (cmd) {
+	case SP_PROV_CMD_GET_CHALLENGE:
+		return handle_get_challenge();
+
+	case SP_PROV_CMD_SEND_PROOF:
+		return handle_send_proof(buf, len);
+
+	case SP_PROV_CMD_SET_BLOB:
+		return handle_set_blob(buf, len);
+
+	case SP_PROV_CMD_COMMIT:
+		return handle_commit();
+
+	default:
+		LOG_WRN("Unknown provisioning command: 0x%02x", cmd);
+		return sp_prov_send_error(cmd, 0x7F);
+	}
+}
+
 static ssize_t write_rx(struct bt_conn *conn,
 			const struct bt_gatt_attr *attr,
 			const void *buf,
