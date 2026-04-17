@@ -5,7 +5,8 @@
 #include <stdint.h>
 #include <zephyr/bluetooth/conn.h>
 
-typedef void (*sp_prov_rx_cb_t)(const uint8_t *data, uint16_t len);
+typedef void (*sp_oper_auth_rx_cb_t)(const uint8_t *data, uint16_t len);
+typedef void (*sp_oper_cmd_rx_cb_t)(const uint8_t *data, uint16_t len);
 
 int sp_prov_init(sp_prov_rx_cb_t rx_cb);
 
