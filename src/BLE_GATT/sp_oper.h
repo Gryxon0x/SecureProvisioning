@@ -21,13 +21,27 @@ enum {
 	SP_OPER_EVT_AUTH_RESULT        = 0x93,
 };
 
-int sp_prov_init(sp_prov_rx_cb_t rx_cb);
+#define SP_OPER_CHALLENGE_LEN 16
+#define SP_OPER_PROOF_MAX_LEN 32
 
-void sp_prov_connected(struct bt_conn *conn);
-void sp_prov_disconnected(struct bt_conn *conn);
+int sp_oper_init(sp_oper_auth_rx_cb_t auth_cb, sp_oper_cmd_rx_cb_t cmd_cb);
 
-bool sp_prov_is_tx_enabled(void);
-int sp_prov_send(const uint8_t *data, uint16_t len);
-int sp_prov_send_state(uint8_t state, uint8_t flags, uint16_t last_error);
+void sp_oper_connected(struct bt_conn *conn);
+void sp_oper_disconnected(struct bt_conn *conn);
 
-#endif /* SP_PROV_H_ */
+bool sp_oper_is_auth_tx_enabled(void);
+bool sp_oper_is_telemetry_enabled(void);
+
+int sp_oper_send_auth(const uint8_t *data, uint16_t len);
+int sp_oper_send_telemetry(const uint8_t *data, uint16_t len);
+
+/* New helpers */
+bool sp_oper_is_challenge_active(void);
+bool sp_oper_is_authenticated(void);
+
+const uint8_t *sp_oper_get_challenge(void);
+uint16_t sp_oper_get_challenge_len(void);
+
+void sp_oper_reset_session(void);
+
+#endif /* SP_OPER_H_ */
