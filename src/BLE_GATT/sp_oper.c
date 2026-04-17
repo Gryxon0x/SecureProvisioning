@@ -212,7 +212,12 @@ static ssize_t write_auth_rx(struct bt_conn *conn,
 	}
 
 	memcpy(auth_rx_value, buf, len);
-	LOG_INF("Operational auth RX write: len=%u", len);
+	LOG_INF("Operational auth RX write: len=%u cmd=0x%02x", len, auth_rx_value[0]);
+
+	err = handle_auth_message(auth_rx_value, len);
+	if (err) {
+		LOG_WRN("Operational auth handling returned %d", err);
+	}
 
 	if (auth_callback != NULL) {
 		auth_callback(auth_rx_value, len);
@@ -241,7 +246,7 @@ static ssize_t write_cmd_rx(struct bt_conn *conn,
 	}
 
 	memcpy(cmd_rx_value, buf, len);
-	LOG_INF("Operational command RX write: len=%u", len);
+	LOG_INF("Operational command RX write: len=%u cmd=0x%02x", len, cmd_rx_value[0]);
 
 	if (cmd_callback != NULL) {
 		cmd_callback(cmd_rx_value, len);
@@ -305,6 +310,10 @@ int sp_oper_init(sp_oper_auth_rx_cb_t auth_cb, sp_oper_cmd_rx_cb_t cmd_cb)
 	memset(cmd_rx_value, 0, sizeof(cmd_rx_value));
 	memset(telem_tx_value, 0, sizeof(telem_tx_value));
 
+	memset(auth_challenge, 0, sizeof(auth_challenge));
+	auth_challenge_active = false;
+	auth_authenticated = false;
+
 	LOG_INF("Operational service initialized");
 	return 0;
 }
@@ -332,6 +341,7 @@ void sp_oper_disconnected(struct bt_conn *conn)
 		current_conn = NULL;
 	}
 
+	sp_oper_reset_session();
 	LOG_INF("Operational service released connection");
 }
 
@@ -389,4 +399,31 @@ int sp_oper_send_telemetry(const uint8_t *data, uint16_t len)
 	memcpy(telem_tx_value, data, len);
 
 	return bt_gatt_notify(current_conn, &sp_oper_svc.attrs[9], telem_tx_value, len);
+}
+
+bool sp_oper_is_challenge_active(void)
+{
+	return auth_challenge_active;
+}
+
+bool sp_oper_is_authenticated(void)
+{
+	return auth_authenticated;
+}
+
+const uint8_t *sp_oper_get_challenge(void)
+{
+	return auth_challenge;
+}
+
+uint16_t sp_oper_get_challenge_len(void)
+{
+	return sizeof(auth_challenge);
+}
+
+void sp_oper_reset_session(void)
+{
+	memset(auth_challenge, 0, sizeof(auth_challenge));
+	auth_challenge_active = false;
+	auth_authenticated = false;
 }
