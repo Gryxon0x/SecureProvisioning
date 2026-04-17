@@ -70,6 +70,128 @@ static void telem_tx_ccc_cfg_changed(const struct bt_gatt_attr *attr, uint16_t v
 	LOG_INF("Operational telemetry notifications %s", telem_tx_enabled ? "enabled" : "disabled");
 }
 
+static int sp_oper_send_auth_error(uint8_t cmd, uint8_t err_code)
+{
+	uint8_t msg[3];
+
+	msg[0] = SP_OPER_EVT_AUTH_ERROR;
+	msg[1] = cmd;
+	msg[2] = err_code;
+
+	return sp_oper_send_auth(msg, sizeof(msg));
+}
+
+static int sp_oper_send_auth_ack(uint8_t cmd)
+{
+	uint8_t msg[2];
+
+	msg[0] = SP_OPER_EVT_AUTH_ACK;
+	msg[1] = cmd;
+
+	return sp_oper_send_auth(msg, sizeof(msg));
+}
+
+static int sp_oper_send_auth_result(uint8_t status)
+{
+	uint8_t msg[2];
+
+	msg[0] = SP_OPER_EVT_AUTH_RESULT;
+	msg[1] = status;
+
+	return sp_oper_send_auth(msg, sizeof(msg));
+}
+
+static int handle_auth_get_challenge(void)
+{
+	uint8_t msg[1 + SP_OPER_CHALLENGE_LEN];
+
+	sys_rand_get(auth_challenge, sizeof(auth_challenge));
+	auth_challenge_active = true;
+	auth_authenticated = false;
+
+	msg[0] = SP_OPER_EVT_AUTH_CHALLENGE;
+	memcpy(&msg[1], auth_challenge, sizeof(auth_challenge));
+
+	LOG_INF("Operational auth challenge generated");
+	return sp_oper_send_auth(msg, sizeof(msg));
+}
+
+/*
+ * Placeholder proof verification for now.
+ * Real implementation should verify HMAC/operational proof.
+ */
+static bool verify_auth_proof_placeholder(const uint8_t *proof, uint16_t len)
+{
+	if (!auth_challenge_active) {
+		return false;
+	}
+
+	/* Temporary rule for plumbing:
+	 * accept proof if first byte is 0x5A and len >= 1
+	 */
+	if (len >= 1U && proof[0] == 0x5AU) {
+		return true;
+	}
+
+	return false;
+}
+
+static int handle_auth_send_proof(const uint8_t *buf, uint16_t len)
+{
+	bool ok;
+
+	if (len < 2U) {
+		return sp_oper_send_auth_error(SP_OPER_CMD_AUTH_SEND_PROOF, 0x01);
+	}
+
+	ok = verify_auth_proof_placeholder(&buf[1], len - 1U);
+	if (!ok) {
+		auth_authenticated = false;
+		LOG_WRN("Operational auth proof rejected");
+		return sp_oper_send_auth_error(SP_OPER_CMD_AUTH_SEND_PROOF, 0x02);
+	}
+
+	auth_authenticated = true;
+	LOG_INF("Operational auth proof accepted");
+	return sp_oper_send_auth_result(0x00);
+}
+
+static int handle_auth_logout(void)
+{
+	auth_authenticated = false;
+	auth_challenge_active = false;
+	memset(auth_challenge, 0, sizeof(auth_challenge));
+
+	LOG_INF("Operational auth logout");
+	return sp_oper_send_auth_ack(SP_OPER_CMD_AUTH_LOGOUT);
+}
+
+static int handle_auth_message(const uint8_t *buf, uint16_t len)
+{
+	uint8_t cmd;
+
+	if (buf == NULL || len == 0U) {
+		return -EINVAL;
+	}
+
+	cmd = buf[0];
+
+	switch (cmd) {
+	case SP_OPER_CMD_AUTH_GET_CHALLENGE:
+		return handle_auth_get_challenge();
+
+	case SP_OPER_CMD_AUTH_SEND_PROOF:
+		return handle_auth_send_proof(buf, len);
+
+	case SP_OPER_CMD_AUTH_LOGOUT:
+		return handle_auth_logout();
+
+	default:
+		LOG_WRN("Unknown operational auth command: 0x%02x", cmd);
+		return sp_oper_send_auth_error(cmd, 0x7F);
+	}
+}
+
 static ssize_t write_auth_rx(struct bt_conn *conn,
 			     const struct bt_gatt_attr *attr,
 			     const void *buf,
