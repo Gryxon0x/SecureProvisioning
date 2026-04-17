@@ -8,6 +8,7 @@
 #include <zephyr/bluetooth/gatt.h>
 #include <zephyr/bluetooth/uuid.h>
 #include <zephyr/logging/log.h>
+#include <zephyr/random/random.h>
 #include <zephyr/sys/util.h>
 
 LOG_MODULE_REGISTER(sp_oper, LOG_LEVEL_INF);
@@ -47,6 +48,11 @@ static uint8_t auth_rx_value[SP_OPER_MAX_DATA_LEN];
 static uint8_t auth_tx_value[SP_OPER_MAX_DATA_LEN];
 static uint8_t cmd_rx_value[SP_OPER_MAX_DATA_LEN];
 static uint8_t telem_tx_value[SP_OPER_MAX_DATA_LEN];
+
+/* Operational auth session state */
+static uint8_t auth_challenge[SP_OPER_CHALLENGE_LEN];
+static bool auth_challenge_active;
+static bool auth_authenticated;
 
 static void auth_tx_ccc_cfg_changed(const struct bt_gatt_attr *attr, uint16_t value)
 {
