@@ -263,13 +263,51 @@ static void app_oper_auth_rx_handler(const uint8_t *data, uint16_t len)
 
 	LOG_INF("Operational auth RX cmd=0x%02x len=%u", data[0], len);
 
-	if (sp_state_get() == SP_STATE_PROVISIONED_IDLE && data[0] == 0x20) {
-		LOG_INF("Auth command received: entering AUTHENTICATED");
-		sp_state_set_authenticated();
-		return;
-	}
+	switch (sp_state_get()) {
+	case SP_STATE_PROVISIONED_IDLE:
+		switch (data[0]) {
+		case SP_OPER_CMD_AUTH_GET_CHALLENGE:
+			LOG_INF("Operational auth: challenge requested");
+			break;
 
-	LOG_WRN("Auth command blocked in state=%s", sp_state_str(sp_state_get()));
+		case SP_OPER_CMD_AUTH_SEND_PROOF:
+			if (sp_oper_is_authenticated()) {
+				LOG_INF("Operational auth: proof accepted, entering AUTHENTICATED");
+				sp_state_set_authenticated();
+			} else {
+				LOG_WRN("Operational auth: proof not accepted");
+			}
+			break;
+
+		case SP_OPER_CMD_AUTH_LOGOUT:
+			LOG_INF("Operational auth: logout while idle");
+			break;
+
+		default:
+			LOG_WRN("Unknown operational auth command: 0x%02x", data[0]);
+			break;
+		}
+		break;
+
+	case SP_STATE_AUTHENTICATED:
+		if (data[0] == SP_OPER_CMD_AUTH_LOGOUT) {
+			LOG_INF("Operational auth: logout, returning to PROVISIONED_IDLE");
+			streaming_enabled = false;
+			sp_oper_reset_session();
+			sp_state_set_provisioned_idle();
+		} else {
+			LOG_WRN("Operational auth command 0x%02x ignored in AUTHENTICATED", data[0]);
+		}
+		break;
+
+	case SP_STATE_FACTORY_NEW:
+		LOG_WRN("Operational auth blocked in FACTORY_NEW");
+		break;
+
+	default:
+		LOG_ERR("Invalid state");
+		break;
+	}
 }
 
 static void app_oper_cmd_rx_handler(const uint8_t *data, uint16_t len)
