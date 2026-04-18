@@ -202,14 +202,46 @@ static void app_prov_rx_handler(const uint8_t *data, uint16_t len)
 
 	switch (sp_state_get()) {
 	case SP_STATE_FACTORY_NEW:
-	case SP_STATE_PROVISIONED_IDLE:
-		if (data[0] == 0x10) {
-			LOG_INF("Provisioning command received: mark provisioned");
-			streaming_enabled = false;
-			sp_state_set_provisioned_idle();
-		} else {
+		switch (data[0]) {
+		case SP_PROV_CMD_GET_CHALLENGE:
+			LOG_INF("Provisioning: challenge requested");
+			break;
+
+		case SP_PROV_CMD_SEND_PROOF:
+			if (sp_prov_is_authenticated()) {
+				LOG_INF("Provisioning: proof accepted");
+			} else {
+				LOG_WRN("Provisioning: proof not accepted");
+			}
+			break;
+
+		case SP_PROV_CMD_SET_BLOB:
+			if (sp_prov_is_blob_staged()) {
+				LOG_INF("Provisioning: blob staged");
+			} else {
+				LOG_WRN("Provisioning: blob not staged");
+			}
+			break;
+
+		case SP_PROV_CMD_COMMIT:
+			if (sp_prov_is_authenticated() && sp_prov_is_blob_staged()) {
+				LOG_INF("Provisioning: commit accepted, entering PROVISIONED_IDLE");
+				streaming_enabled = false;
+				sp_state_set_provisioned_idle();
+				sp_prov_reset_session();
+			} else {
+				LOG_WRN("Provisioning: commit attempted without auth/blob");
+			}
+			break;
+
+		default:
 			LOG_WRN("Unknown provisioning command: 0x%02x", data[0]);
+			break;
 		}
+		break;
+
+	case SP_STATE_PROVISIONED_IDLE:
+		LOG_WRN("Provisioning RX blocked in PROVISIONED_IDLE");
 		break;
 
 	case SP_STATE_AUTHENTICATED:
