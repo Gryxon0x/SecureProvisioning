@@ -237,6 +237,8 @@ static ssize_t write_rx(struct bt_conn *conn,
 			uint16_t offset,
 			uint8_t flags)
 {
+	int err;
+
 	ARG_UNUSED(conn);
 	ARG_UNUSED(attr);
 	ARG_UNUSED(flags);
@@ -250,7 +252,10 @@ static ssize_t write_rx(struct bt_conn *conn,
 	}
 
 	memcpy(rx_value, buf, len);
-	LOG_INF("Provisioning RX write: len=%u", len);
+	err = handle_rx_message(rx_value, len);
+	if (err) {
+		LOG_WRN("Provisioning command handling returned %d", err);
+	}
 
 	if (rx_callback != NULL) {
 		rx_callback(rx_value, len);
