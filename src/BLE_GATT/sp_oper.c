@@ -199,6 +199,8 @@ static ssize_t write_auth_rx(struct bt_conn *conn,
 			     uint16_t offset,
 			     uint8_t flags)
 {
+	int err;
+
 	ARG_UNUSED(conn);
 	ARG_UNUSED(attr);
 	ARG_UNUSED(flags);
@@ -233,8 +235,6 @@ static ssize_t write_cmd_rx(struct bt_conn *conn,
 			    uint16_t offset,
 			    uint8_t flags)
 {
-	int err;
-
 	ARG_UNUSED(conn);
 	ARG_UNUSED(attr);
 	ARG_UNUSED(flags);
