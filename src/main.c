@@ -56,6 +56,7 @@ static const struct bt_data sd[] = {
 		      BT_UUID_SP_PROV_SERVICE_VAL),
 };
 
+/* Deferred work handler that safely restarts BLE advertising from Zephyr workqueue context. */
 static void adv_work_handler(struct k_work *work)
 {
 	ARG_UNUSED(work);
@@ -76,6 +77,7 @@ static void adv_work_handler(struct k_work *work)
 	LOG_INF("Advertising successfully started");
 }
 
+/* Queues advertising start work instead of starting advertising directly from callback context. */
 static void advertising_start(void)
 {
 	k_work_submit(&adv_work);
