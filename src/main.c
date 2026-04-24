@@ -83,6 +83,7 @@ static void advertising_start(void)
 	k_work_submit(&adv_work);
 }
 
+/* BLE connection callback; gives both GATT services a reference to the active connection. */
 static void connected(struct bt_conn *conn, uint8_t err)
 {
 	if (err) {
@@ -95,6 +96,7 @@ static void connected(struct bt_conn *conn, uint8_t err)
 	sp_oper_connected(conn);
 }
 
+/* BLE disconnection callback; clears service sessions, stops streaming, and drops auth state. */
 static void disconnected(struct bt_conn *conn, uint8_t reason)
 {
 	LOG_INF("Disconnected, reason 0x%02x %s", reason, bt_hci_err_to_str(reason));
