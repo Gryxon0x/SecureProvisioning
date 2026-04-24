@@ -201,6 +201,7 @@ static struct bt_conn_auth_cb conn_auth_callbacks;
 static struct bt_conn_auth_info_cb conn_auth_info_callbacks;
 #endif
 
+/* Handles provisioning-service RX commands and advances provisioning state after valid commit. */
 static void app_prov_rx_handler(const uint8_t *data, uint16_t len)
 {
 	if (data == NULL || len == 0U) {
@@ -264,6 +265,7 @@ static void app_prov_rx_handler(const uint8_t *data, uint16_t len)
 	}
 }
 
+/* Handles operational authentication RX commands and enters/leaves authenticated session state. */
 static void app_oper_auth_rx_handler(const uint8_t *data, uint16_t len)
 {
 	if (data == NULL || len == 0U) {
@@ -320,6 +322,7 @@ static void app_oper_auth_rx_handler(const uint8_t *data, uint16_t len)
 	}
 }
 
+/* Handles authenticated operational commands such as starting and stopping telemetry streaming. */
 static void app_oper_cmd_rx_handler(const uint8_t *data, uint16_t len)
 {
 	if (data == NULL || len == 0U) {
@@ -349,6 +352,7 @@ static void app_oper_cmd_rx_handler(const uint8_t *data, uint16_t len)
 	}
 }
 
+/* Application entry point: initializes state, BLE, services, advertising, and telemetry loop. */
 int main(void)
 {
 	int err;
