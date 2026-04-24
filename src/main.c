@@ -111,12 +111,14 @@ static void disconnected(struct bt_conn *conn, uint8_t reason)
 	}
 }
 
+/* Called when Zephyr has fully recycled the connection object; advertising can safely restart. */
 static void recycled_cb(void)
 {
 	LOG_INF("Connection object available from previous conn. Disconnect is complete");
 	advertising_start();
 }
 
+/* Optional BLE security-level callback used when legacy/sample security config is enabled. */
 #ifdef CONFIG_BT_LBS_SECURITY_ENABLED
 static void security_changed(struct bt_conn *conn, bt_security_t level,
 			     enum bt_security_err err)
