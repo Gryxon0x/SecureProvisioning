@@ -145,6 +145,7 @@ BT_CONN_CB_DEFINE(conn_callbacks) = {
 #endif
 };
 
+/* Optional pairing callback that displays a passkey during BLE authentication. */
 #if defined(CONFIG_BT_LBS_SECURITY_ENABLED)
 static void auth_passkey_display(struct bt_conn *conn, unsigned int passkey)
 {
@@ -155,6 +156,7 @@ static void auth_passkey_display(struct bt_conn *conn, unsigned int passkey)
 	LOG_INF("Passkey for %s: %06u", addr, passkey);
 }
 
+/* Optional pairing callback called when the central cancels authentication. */
 static void auth_cancel(struct bt_conn *conn)
 {
 	char addr[BT_ADDR_LE_STR_LEN];
@@ -164,6 +166,7 @@ static void auth_cancel(struct bt_conn *conn)
 	LOG_INF("Pairing cancelled: %s", addr);
 }
 
+/* Optional pairing callback called after pairing completes successfully. */
 static void pairing_complete(struct bt_conn *conn, bool bonded)
 {
 	char addr[BT_ADDR_LE_STR_LEN];
@@ -173,6 +176,7 @@ static void pairing_complete(struct bt_conn *conn, bool bonded)
 	LOG_INF("Pairing completed: %s, bonded: %d", addr, bonded);
 }
 
+/* Optional pairing callback called when pairing fails. */
 static void pairing_failed(struct bt_conn *conn, enum bt_security_err reason)
 {
 	char addr[BT_ADDR_LE_STR_LEN];
