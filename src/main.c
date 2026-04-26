@@ -382,7 +382,7 @@ int main(void)
 		return 0;
 	}
 
-	LOG_INF("Bluetooth initialized");
+	LOG_INF("Bluetooth is initialized");
 
 	if (IS_ENABLED(CONFIG_SETTINGS)) {
 		settings_load();
