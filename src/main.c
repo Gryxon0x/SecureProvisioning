@@ -390,7 +390,7 @@ int main(void)
 
 	err = sp_prov_init(app_prov_rx_handler);
 	if (err) {
-		LOG_ERR("Failed to init provisioning service (err:%d)", err);
+		LOG_ERR("Failed to initialize provisioning service (err:%d)", err);
 		return 0;
 	}
 
