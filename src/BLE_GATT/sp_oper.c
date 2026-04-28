@@ -214,7 +214,7 @@ static ssize_t write_auth_rx(struct bt_conn *conn,
 	}
 
 	memcpy(auth_rx_value, buf, len);
-	LOG_INF("Operational auth RX write: len=%u cmd=0x%02x", len, auth_rx_value[0]);
+	LOG_INF("Operational authentication RX write: len=%u cmd=0x%02x", len, auth_rx_value[0]);
 
 	err = handle_auth_message(auth_rx_value, len);
 	if (err) {
