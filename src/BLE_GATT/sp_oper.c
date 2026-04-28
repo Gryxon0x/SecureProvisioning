@@ -162,7 +162,7 @@ static int handle_auth_logout(void)
 	auth_challenge_active = false;
 	memset(auth_challenge, 0, sizeof(auth_challenge));
 
-	LOG_INF("Operational auth logout");
+	LOG_INF("Operational authentication logout");
 	return sp_oper_send_auth_ack(SP_OPER_CMD_AUTH_LOGOUT);
 }
 
