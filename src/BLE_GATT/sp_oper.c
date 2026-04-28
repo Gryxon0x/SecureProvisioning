@@ -147,7 +147,7 @@ static int handle_auth_send_proof(const uint8_t *buf, uint16_t len)
 	ok = verify_auth_proof_placeholder(&buf[1], len - 1U);
 	if (!ok) {
 		auth_authenticated = false;
-		LOG_WRN("Operational auth proof rejected");
+		LOG_WRN("Operational authentication proof rejected");
 		return sp_oper_send_auth_error(SP_OPER_CMD_AUTH_SEND_PROOF, 0x02);
 	}
 
