@@ -112,7 +112,7 @@ static int handle_auth_get_challenge(void)
 	msg[0] = SP_OPER_EVT_AUTH_CHALLENGE;
 	memcpy(&msg[1], auth_challenge, sizeof(auth_challenge));
 
-	LOG_INF("Operational auth challenge generated");
+	LOG_INF("Operational authentication challenge generated");
 	return sp_oper_send_auth(msg, sizeof(msg));
 }
 
