@@ -187,7 +187,7 @@ static int handle_auth_message(const uint8_t *buf, uint16_t len)
 		return handle_auth_logout();
 
 	default:
-		LOG_WRN("Unknown operational auth command: 0x%02x", cmd);
+		LOG_WRN("Unknown operational authentication command: 0x%02x", cmd);
 		return sp_oper_send_auth_error(cmd, 0x7F);
 	}
 }
