@@ -218,7 +218,7 @@ static ssize_t write_auth_rx(struct bt_conn *conn,
 
 	err = handle_auth_message(auth_rx_value, len);
 	if (err) {
-		LOG_WRN("Operational auth handling returned %d", err);
+		LOG_WRN("Operational authentication handling returned %d", err);
 	}
 
 	if (auth_callback != NULL) {
