@@ -152,7 +152,7 @@ static int handle_auth_send_proof(const uint8_t *buf, uint16_t len)
 	}
 
 	auth_authenticated = true;
-	LOG_INF("Operational auth proof accepted");
+	LOG_INF("Operational authentication proof accepted");
 	return sp_oper_send_auth_result(0x00);
 }
 
