@@ -59,7 +59,7 @@ static void auth_tx_ccc_cfg_changed(const struct bt_gatt_attr *attr, uint16_t va
 	ARG_UNUSED(attr);
 
 	auth_tx_enabled = (value == BT_GATT_CCC_NOTIFY);
-	LOG_INF("Operational auth TX notifications %s", auth_tx_enabled ? "enabled" : "disabled");
+	LOG_INF("Operational authentication TX notifications %s", auth_tx_enabled ? "enabled" : "disabled");
 }
 
 static void telem_tx_ccc_cfg_changed(const struct bt_gatt_attr *attr, uint16_t value)
